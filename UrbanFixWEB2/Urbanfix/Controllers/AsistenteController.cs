@@ -46,14 +46,11 @@ namespace Urbanfix.Controllers
 
                 var payload = new
                 {
-                    system_instruction = new {
-                        parts = new[] { new { text = systemInstruction } }
-                    },
                     contents = new[]
                     {
                         new {
                             role = "user",
-                            parts = new[] { new { text = request.Message } }
+                            parts = new[] { new { text = systemInstruction + "\n\nUsuario: " + request.Message } }
                         }
                     },
                     generationConfig = new {
