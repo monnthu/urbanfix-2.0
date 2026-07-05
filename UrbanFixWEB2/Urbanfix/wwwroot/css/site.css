@@ -9,7 +9,7 @@
   --uf-accent-hover: #1D4ED8;
   --uf-border: #E5E7EB;
   --uf-navbar-bg: #0A0F1C;
-  --uf-navbar-text: #F97316;
+  --uf-navbar-text: #FEF08A;
   --uf-radius-lg: 24px;
   --uf-radius-md: 12px;
   --uf-radius-pill: 9999px;
@@ -113,7 +113,7 @@ a:hover {
   font-weight: 600;
 }
 .uf-nav-cta:hover {
-  background-color: #EA580C;
+  background-color: #FDE047;
   color: var(--uf-navbar-bg) !important;
 }
 
