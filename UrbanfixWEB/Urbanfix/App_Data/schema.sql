@@ -1,0 +1,20 @@
+-- Referencia: la base de datos ya existe en un servidor remoto.
+-- Configura la connection string en appsettings.json o appsettings.Development.json:
+--
+-- "ConnectionStrings": {
+--   "UrbanfixDb": "Server=TU_SERVIDOR;Database=TU_BASE_DE_DATOS;User Id=TU_USUARIO;Password=TU_PASSWORD;TrustServerCertificate=True"
+-- }
+--
+-- La tabla esperada por la aplicacion (ajusta el scaffold si tu esquema difiere):
+--
+-- CREATE TABLE dbo.Puntos
+-- (
+--     Id          INT NOT NULL PRIMARY KEY,
+--     Latitud     FLOAT NOT NULL,
+--     Longitud    FLOAT NOT NULL,
+--     Titulo      NVARCHAR(200) NOT NULL,
+--     Descripcion NVARCHAR(1000) NULL
+-- );
+--
+-- Para regenerar el modelo desde tu BD remota:
+-- dotnet ef dbcontext scaffold "TU_CONNECTION_STRING" Microsoft.EntityFrameworkCore.SqlServer -o Models -c UrbanfixDbContext --context-dir Data --force

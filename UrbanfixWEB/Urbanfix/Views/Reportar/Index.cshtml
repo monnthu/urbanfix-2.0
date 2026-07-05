@@ -1,0 +1,183 @@
+@model Urbanfix.Models.ReportFormViewModel
+@{
+    ViewData["Title"] = "Reportar daños";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+    <style>
+        #report-map {
+            height: 280px;
+            width: 100%;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="display-6 mb-2">Reportar daños</h1>
+        <p class="text-muted mb-4">Completa el formulario y ubica el punto en el mapa. Los reportes nuevos se registran con estado "Abierto".</p>
+
+        @if (TempData["Success"] is string successMessage)
+        {
+            <div class="alert alert-success" role="alert">@successMessage</div>
+        }
+
+        <form asp-action="Index" asp-controller="Reportar" method="post" enctype="multipart/form-data" novalidate>
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Titulo" class="form-label"></label>
+                <input asp-for="Titulo" class="form-control" placeholder="Ej. Bache en calle principal" />
+                <span asp-validation-for="Titulo" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Descripcion" class="form-label"></label>
+                <textarea asp-for="Descripcion" class="form-control" rows="4" placeholder="Describe el dano con detalle"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Categoria" class="form-label"></label>
+                    <select asp-for="Categoria" asp-items="Html.GetEnumSelectList<Urbanfix.Models.ReportCategory>()" class="form-select"></select>
+                    <span asp-validation-for="Categoria" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Prioridad" class="form-label"></label>
+                    <select asp-for="Prioridad" asp-items="Html.GetEnumSelectList<Urbanfix.Models.ReportPriority>()" class="form-select">
+                        <option value="">-- Opcional --</option>
+                    </select>
+                    <span asp-validation-for="Prioridad" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label">Ubicacion en el mapa</label>
+                <p class="text-muted small mb-2">Se usa tu ubicacion actual al abrir el formulario. Haz clic en el mapa o arrastra el marcador para ajustarla.</p>
+                <div id="report-map"></div>
+                <div id="geo-status" class="text-muted small mt-1"></div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Latitud" class="form-label"></label>
+                    <input asp-for="Latitud" class="form-control" id="Latitud" step="0.000001" />
+                    <span asp-validation-for="Latitud" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Longitud" class="form-label"></label>
+                    <input asp-for="Longitud" class="form-control" id="Longitud" step="0.000001" />
+                    <span asp-validation-for="Longitud" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Imagen" class="form-label"></label>
+                <input asp-for="Imagen" type="file" accept="image/*" class="form-control" />
+                <span asp-validation-for="Imagen" class="text-danger"></span>
+                <div class="form-text">Formatos: JPG, PNG, WEBP. Maximo 5 MB.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Enviar reporte</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script>
+        (function () {
+            const defaultLat = @ViewBag.DefaultLat;
+            const defaultLng = @ViewBag.DefaultLng;
+            const defaultZoom = @ViewBag.DefaultZoom;
+            const locationZoom = 16;
+
+            const latInput = document.getElementById('Latitud');
+            const lngInput = document.getElementById('Longitud');
+            const geoStatus = document.getElementById('geo-status');
+
+            const map = L.map('report-map').setView([defaultLat, defaultLng], defaultZoom);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            function parseCoord(value, fallback) {
+                const parsed = parseFloat(value);
+                return Number.isFinite(parsed) ? parsed : fallback;
+            }
+
+            function updateInputs(lat, lng) {
+                latInput.value = lat.toFixed(6);
+                lngInput.value = lng.toFixed(6);
+            }
+
+            function setMarkerPosition(lat, lng, zoom) {
+                updateInputs(lat, lng);
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng], zoom);
+            }
+
+            let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+            updateInputs(defaultLat, defaultLng);
+
+            marker.on('dragend', function (event) {
+                const position = event.target.getLatLng();
+                updateInputs(position.lat, position.lng);
+            });
+
+            map.on('click', function (event) {
+                marker.setLatLng(event.latlng);
+                updateInputs(event.latlng.lat, event.latlng.lng);
+            });
+
+            latInput.addEventListener('change', syncMarkerFromInputs);
+            lngInput.addEventListener('change', syncMarkerFromInputs);
+
+            function syncMarkerFromInputs() {
+                const lat = parseCoord(latInput.value, defaultLat);
+                const lng = parseCoord(lngInput.value, defaultLng);
+                marker.setLatLng([lat, lng]);
+                map.panTo([lat, lng]);
+            }
+
+            if (!navigator.geolocation) {
+                geoStatus.textContent = 'Tu navegador no soporta geolocalizacion. Usando ubicacion por defecto.';
+                return;
+            }
+
+            geoStatus.textContent = 'Obteniendo tu ubicacion actual...';
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    setMarkerPosition(
+                        position.coords.latitude,
+                        position.coords.longitude,
+                        locationZoom
+                    );
+                    geoStatus.textContent = 'Ubicacion actual detectada. Puedes ajustar el marcador si es necesario.';
+                },
+                function (error) {
+                    geoStatus.textContent = 'No se pudo obtener tu ubicacion. Usando coordenadas por defecto.';
+                    console.warn('Geolocalizacion no disponible:', error.message);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        })();
+    </script>
+}

@@ -1,0 +1,49 @@
+@UrbanFix.API_HostAddress = http://localhost:5213
+
+### Health check
+GET {{UrbanFix.API_HostAddress}}/api/health
+Accept: application/json
+
+###
+
+### Listar reportes (publico)
+GET {{UrbanFix.API_HostAddress}}/api/Reports
+Accept: application/json
+
+###
+
+### Perfil del usuario autenticado
+GET {{UrbanFix.API_HostAddress}}/api/Profiles/me
+Authorization: Bearer {{access_token}}
+Accept: application/json
+
+###
+
+### Crear reporte (requiere JWT Supabase)
+POST {{UrbanFix.API_HostAddress}}/api/Reports
+Authorization: Bearer {{access_token}}
+Content-Type: multipart/form-data; boundary=----UrbanFixBoundary
+
+------UrbanFixBoundary
+Content-Disposition: form-data; name="Title"
+
+Bache de prueba
+------UrbanFixBoundary
+Content-Disposition: form-data; name="Description"
+
+Reporte creado desde UrbanFix.API.http
+------UrbanFixBoundary
+Content-Disposition: form-data; name="Category"
+
+1
+------UrbanFixBoundary
+Content-Disposition: form-data; name="Latitude"
+
+14.634900
+------UrbanFixBoundary
+Content-Disposition: form-data; name="Longitude"
+
+-90.506900
+------UrbanFixBoundary--
+
+###

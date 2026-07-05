@@ -19,3 +19,14 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+**/appsettings.Development.json
+
+# Archives
+*.zip
