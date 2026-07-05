@@ -55,19 +55,20 @@ public class SupabaseAuthService
 
         try
         {
+            if (string.IsNullOrWhiteSpace(_apiSettings.BaseUrl))
+            {
+                return (false, "Configura ApiSettings:BaseUrl para registrar usuarios.");
+            }
+
             using var request = new HttpRequestMessage(
                 HttpMethod.Post,
-                $"{supabaseUrl}/auth/v1/signup");
-            request.Headers.Add("apikey", anonKey);
+                $"{_apiSettings.BaseUrl.TrimEnd('/')}/api/Auth/register");
             request.Content = JsonContent.Create(new
             {
                 email = model.Email.Trim(),
                 password = model.Password,
-                data = new
-                {
-                    full_name = model.FullName.Trim(),
-                    national_id = normalizedId
-                }
+                fullName = model.FullName.Trim(),
+                nationalId = normalizedId
             });
 
             var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -77,8 +78,8 @@ public class SupabaseAuthService
             }
 
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logger.LogWarning("Supabase signup fallo ({StatusCode}): {Body}", (int)response.StatusCode, body);
-            return (false, ParseSupabaseError(body) ?? "No se pudo completar el registro.");
+            _logger.LogWarning("Registro via API fallo ({StatusCode}): {Body}", (int)response.StatusCode, body);
+            return (false, ParseApiError(body) ?? "No se pudo completar el registro.");
         }
         catch (Exception ex)
         {
@@ -115,7 +116,13 @@ public class SupabaseAuthService
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Supabase login fallo ({StatusCode}): {Body}", (int)response.StatusCode, body);
-                return (false, null, ParseSupabaseError(body) ?? "Correo o contrasena incorrectos.");
+                var parsed = ParseSupabaseError(body);
+                if (parsed?.Contains("confirm", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return (false, null, "Tu cuenta aun no esta activa. Registrate de nuevo o contacta al administrador.");
+                }
+
+                return (false, null, parsed ?? "Correo o contrasena incorrectos.");
             }
 
             var payload = JsonSerializer.Deserialize<SupabaseAuthResponse>(body, JsonOptions);
@@ -246,6 +253,35 @@ public class SupabaseAuthService
         }
 
         return null;
+    }
+
+    private static string? ParseApiError(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            return null;
+        }
+
+        try
+        {
+            var payload = JsonSerializer.Deserialize<ApiErrorResponse>(body, JsonOptions);
+            if (!string.IsNullOrWhiteSpace(payload?.Error))
+            {
+                return payload.Error;
+            }
+        }
+        catch
+        {
+            // Ignorar errores de parseo.
+        }
+
+        return null;
+    }
+
+    private sealed class ApiErrorResponse
+    {
+        [JsonPropertyName("error")]
+        public string? Error { get; set; }
     }
 
     private sealed class SupabaseAuthResponse

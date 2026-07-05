@@ -43,7 +43,25 @@ public class AccountController : Controller
             return View(model);
         }
 
+        var (loginSuccess, session, loginError) = await _authService.LoginAsync(
+            model.Email,
+            model.Password,
+            cancellationToken);
+
+        if (loginSuccess && session is not null)
+        {
+            var profile = await _authService.GetProfileAsync(session.AccessToken, cancellationToken);
+            await SignInUserAsync(session, profile);
+            TempData["Success"] = "Cuenta creada correctamente. Bienvenido.";
+            return RedirectToAction("Index", "Home");
+        }
+
         TempData["Success"] = "Cuenta creada correctamente. Ya puedes iniciar sesion.";
+        if (!string.IsNullOrWhiteSpace(loginError))
+        {
+            TempData["Error"] = loginError;
+        }
+
         return RedirectToAction(nameof(Login));
     }
 

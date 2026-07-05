@@ -43,6 +43,7 @@ builder.Services.Configure<FormOptions>(options =>
 });
 
 builder.Services.AddHttpClient<ISupabaseStorageService, SupabaseStorageService>();
+builder.Services.AddHttpClient<ISupabaseAdminAuthService, SupabaseAdminAuthService>();
 builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
 
 builder.Services.AddDbContext<ReportContext>(options =>
