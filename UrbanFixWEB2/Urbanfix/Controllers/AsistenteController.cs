@@ -40,7 +40,7 @@ namespace Urbanfix.Controllers
                 var client = _httpClientFactory.CreateClient();
                 
                 // Gemini usa la URL con la API key en el querystring
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={apiKey}";
 
                 var systemInstruction = "Eres el asistente virtual de Urbanfix El Salvador. Tu objetivo es ayudar a los ciudadanos a entender la plataforma y reportar problemas de infraestructura (baches, agua, electricidad, basura). Sé amable, conciso y útil. Si preguntan por autoridades: ANDA (agua), FOVIAL o Alcaldías (calles), AES o DELSUR (electricidad). Responde de forma directa, sin usar formato markdown complejo.";
 
