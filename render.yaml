@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: urbanfix-api
+    runtime: docker
+    plan: free
+    dockerfilePath: "./UrbanFix.API V2/UrbanFix.API/Dockerfile"
+    dockerContext: "."
+    healthCheckPath: /api/health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Supabase__Url
+        sync: false
+      - key: Supabase__ServiceRoleKey
+        sync: false
+      - key: Supabase__JwtSecret
+        sync: false
+      - key: Supabase__StorageBucket
+        value: report-images
+      - key: Cors__AllowedOrigins__0
+        sync: false

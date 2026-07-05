@@ -1,0 +1,13 @@
+.git
+.dart_tool
+build
+bin
+obj
+**/bin
+**/obj
+**/appsettings.Development.json
+**/*.user
+**/*.suo
+.vs
+.vscode
+*.zip
