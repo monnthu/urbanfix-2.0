@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --uf-bg: #FAFAF8;
-  --uf-surface: #FFFFFF;
-  --uf-text-main: #0F172A;
-  --uf-text-muted: #6B7280;
-  --uf-accent: #0F172A;
-  --uf-accent-hover: #334155;
-  --uf-border: #E5E7EB;
+  --uf-bg: #0A0F1C;
+  --uf-surface: #131E32;
+  --uf-text-main: #FFFFFF;
+  --uf-text-muted: #94A3B8;
+  --uf-accent: #2563EB;
+  --uf-accent-hover: #3B82F6;
+  --uf-border: rgba(255, 255, 255, 0.1);
   --uf-radius-lg: 24px;
   --uf-radius-md: 12px;
   --uf-radius-pill: 9999px;
-  --uf-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --uf-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --uf-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  --uf-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --uf-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --uf-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
   --uf-transition: all 0.2s ease-in-out;
 }
 
@@ -79,7 +79,7 @@ a:hover {
 
 /* Navbar */
 .uf-navbar {
-  background: rgba(250, 250, 248, 0.85);
+  background: rgba(10, 15, 28, 0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--uf-border);
   padding: 1rem 0;
@@ -201,12 +201,12 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--uf-bg);
-  border: 1px solid var(--uf-border);
+  background-color: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
   border-radius: var(--uf-radius-md);
   font-size: 1.25rem;
   margin-bottom: 1.5rem;
-  color: var(--uf-text-main);
+  color: var(--uf-accent);
 }
 .uf-card h3 {
   font-size: 1.25rem;
@@ -257,12 +257,14 @@ a:hover {
   border: 1px solid var(--uf-border);
   padding: 0.75rem 1rem;
   background-color: var(--uf-bg);
+  color: var(--uf-text-main);
   transition: var(--uf-transition);
 }
 .form-control:focus, .form-select:focus {
-  border-color: var(--uf-text-main);
-  box-shadow: 0 0 0 1px var(--uf-text-main);
+  border-color: var(--uf-accent);
+  box-shadow: 0 0 0 1px var(--uf-accent);
   background-color: var(--uf-surface);
+  color: var(--uf-text-main);
 }
 .form-label {
   font-weight: 500;
