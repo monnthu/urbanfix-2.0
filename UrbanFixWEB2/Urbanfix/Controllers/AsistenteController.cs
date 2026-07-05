@@ -22,71 +22,56 @@ namespace Urbanfix.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Chat([FromBody] ChatRequest request)
+        public IActionResult Chat([FromBody] ChatRequest request)
         {
             if (string.IsNullOrWhiteSpace(request?.Message))
                 return BadRequest("Mensaje vacío");
 
-            var apiKey = _configuration["GeminiApiKey"];
-            
-            // Fallback si no hay API Key configurada
-            if (string.IsNullOrEmpty(apiKey))
+            var input = request.Message.ToLower();
+            string reply;
+
+            // Motor de reglas basado en palabras clave (Funciona 100% offline, sin API Keys)
+            if (input.Contains("hola") || input.Contains("buenas") || input.Contains("saludos"))
             {
-                return Json(new { reply = "Hola. Soy el asistente de Urbanfix. Actualmente mi inteligencia artificial avanzada está desactivada porque falta configurar la clave de Google Gemini (GeminiApiKey). Por favor, pide a un administrador que la agregue en las variables de entorno." });
+                reply = "¡Hola! Soy el asistente virtual de Urbanfix. Estoy aquí para ayudarte a reportar problemas en tu comunidad o darte información de contacto de las autoridades. ¿En qué te puedo ayudar?";
+            }
+            else if (input.Contains("finalidad") || input.Contains("quienes somos") || input.Contains("objetivo") || input.Contains("para que sirve"))
+            {
+                reply = "Nuestra finalidad es dar voz a los ciudadanos salvadoreños. Urbanfix permite reportar problemas de infraestructura (como baches, fugas de agua o fallas eléctricas) para que las autoridades correspondientes puedan tomar acción rápida.";
+            }
+            else if (input.Contains("como usar") || input.Contains("como reportar") || input.Contains("ayuda") || input.Contains("pasos"))
+            {
+                reply = "Es muy fácil: 1) Regístrate en la plataforma. 2) Ve a la pestaña 'Reportar daños'. 3) Llena los datos del problema y ubícalo en el mapa. 4) ¡Listo! Tu reporte será público para que las autoridades lo vean.";
+            }
+            else if (input.Contains("agua") || input.Contains("pozo") || input.Contains("fuga") || input.Contains("inundacion") || input.Contains("tuberia"))
+            {
+                reply = "Los problemas relacionados con agua potable, fugas, tuberías rotas o alcantarillado corresponden a ANDA. Puedes contactarlos directamente a su Call Center marcando el 915 o a través de su WhatsApp oficial.";
+            }
+            else if (input.Contains("luz") || input.Contains("electric") || input.Contains("poste") || input.Contains("cable") || input.Contains("energia"))
+            {
+                reply = "Los problemas eléctricos (postes caídos, cables expuestos, cortes de energía) deben ser reportados a tu distribuidora local. Si estás en la zona central, contacta a AES El Salvador (2506-9000) o DELSUR (2233-5600).";
+            }
+            else if (input.Contains("calle") || input.Contains("bache") || input.Contains("via") || input.Contains("hoyo") || input.Contains("carretera"))
+            {
+                reply = "El mantenimiento de las vías depende de su tipo: si es una carretera principal, corresponde a FOVIAL (puedes marcar al 2228-8425). Si es una calle dentro de una colonia o pasaje, corresponde a la Alcaldía de tu municipio.";
+            }
+            else if (input.Contains("basura") || input.Contains("desecho") || input.Contains("tren de aseo") || input.Contains("limpieza"))
+            {
+                reply = "La recolección de basura y limpieza de espacios públicos es responsabilidad de la Alcaldía de tu municipio. Te recomendamos hacer el reporte aquí en Urbanfix y etiquetarlo en las redes sociales de tu alcaldía.";
+            }
+            else if (input.Contains("gracias") || input.Contains("excelente") || input.Contains("muy bien"))
+            {
+                reply = "¡De nada! Es un placer ayudarte. Recuerda que juntos podemos mejorar nuestras comunidades. ¿Tienes alguna otra duda?";
+            }
+            else
+            {
+                reply = "Entiendo. Para darte la mejor respuesta, ¿podrías ser un poco más específico? Puedes preguntarme sobre cómo reportar un problema, cuál es nuestra finalidad, o pedirme el contacto de autoridades para problemas de agua, calles, electricidad o basura.";
             }
 
-            try
-            {
-                var client = _httpClientFactory.CreateClient();
-                
-                // Gemini usa la URL con la API key en el querystring
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+            // Simulamos un pequeño retraso para que parezca que está "pensando"
+            System.Threading.Thread.Sleep(800);
 
-                var systemInstruction = "Eres el asistente virtual de Urbanfix El Salvador. Tu objetivo es ayudar a los ciudadanos a entender la plataforma y reportar problemas de infraestructura (baches, agua, electricidad, basura). Sé amable, conciso y útil. Si preguntan por autoridades: ANDA (agua), FOVIAL o Alcaldías (calles), AES o DELSUR (electricidad). Responde de forma directa, sin usar formato markdown complejo.";
-
-                var payload = new
-                {
-                    contents = new[]
-                    {
-                        new {
-                            role = "user",
-                            parts = new[] { new { text = systemInstruction + "\n\nUsuario: " + request.Message } }
-                        }
-                    },
-                    generationConfig = new {
-                        temperature = 0.7,
-                        maxOutputTokens = 250
-                    }
-                };
-
-                var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-                var response = await client.PostAsync(url, content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    using var doc = JsonDocument.Parse(responseString);
-                    
-                    // Extraer la respuesta de la estructura JSON de Gemini
-                    var reply = doc.RootElement
-                        .GetProperty("candidates")[0]
-                        .GetProperty("content")
-                        .GetProperty("parts")[0]
-                        .GetProperty("text")
-                        .GetString();
-                        
-                    return Json(new { reply });
-                }
-                else
-                {
-                    var errorDetail = await response.Content.ReadAsStringAsync();
-                    return Json(new { reply = $"Hubo un error al comunicarse con la IA. Código: {response.StatusCode}. Detalle: {errorDetail}" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { reply = $"Error interno del servidor al procesar la IA: {ex.Message}" });
-            }
+            return Json(new { reply });
         }
     }
 
