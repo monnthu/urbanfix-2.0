@@ -1,19 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --uf-bg: #0A0F1C;
-  --uf-surface: #131E32;
-  --uf-text-main: #FFFFFF;
-  --uf-text-muted: #94A3B8;
+  --uf-bg: #F4F9FF;
+  --uf-surface: #FFFFFF;
+  --uf-text-main: #0F172A;
+  --uf-text-muted: #6B7280;
   --uf-accent: #2563EB;
-  --uf-accent-hover: #3B82F6;
-  --uf-border: rgba(255, 255, 255, 0.1);
+  --uf-accent-hover: #1D4ED8;
+  --uf-border: #E5E7EB;
+  --uf-navbar-bg: #0A0F1C;
+  --uf-navbar-text: #F97316;
   --uf-radius-lg: 24px;
   --uf-radius-md: 12px;
   --uf-radius-pill: 9999px;
-  --uf-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --uf-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
-  --uf-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --uf-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --uf-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --uf-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
   --uf-transition: all 0.2s ease-in-out;
 }
 
@@ -79,34 +81,40 @@ a:hover {
 
 /* Navbar */
 .uf-navbar {
-  background: rgba(10, 15, 28, 0.85);
+  background: var(--uf-navbar-bg);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--uf-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem 0;
 }
 .uf-navbar .navbar-brand {
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: -0.03em;
-  color: var(--uf-text-main);
+  color: var(--uf-navbar-text);
 }
 .uf-navbar .nav-link {
-  color: var(--uf-text-muted);
+  color: var(--uf-navbar-text);
   font-weight: 500;
   padding: 0.5rem 1rem;
+  opacity: 0.85;
 }
 .uf-navbar .nav-link:hover, .uf-navbar .nav-link.active {
-  color: var(--uf-text-main);
+  color: var(--uf-navbar-text);
+  opacity: 1;
+}
+.uf-navbar .btn-link.nav-link {
+  color: var(--uf-navbar-text);
 }
 .uf-nav-cta {
-  background-color: var(--uf-accent);
-  color: #FFFFFF !important;
+  background-color: var(--uf-navbar-text);
+  color: var(--uf-navbar-bg) !important;
   border-radius: var(--uf-radius-pill);
   padding: 0.5rem 1.25rem !important;
+  font-weight: 600;
 }
 .uf-nav-cta:hover {
-  background-color: var(--uf-accent-hover);
-  color: #FFFFFF !important;
+  background-color: #EA580C;
+  color: var(--uf-navbar-bg) !important;
 }
 
 /* Layout */
@@ -139,7 +147,7 @@ a:hover {
   border-radius: var(--uf-radius-pill);
   background-color: var(--uf-surface);
   border: 1px solid var(--uf-border);
-  color: var(--uf-text-muted);
+  color: var(--uf-text-main);
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 2rem;
@@ -256,7 +264,7 @@ a:hover {
   border-radius: var(--uf-radius-md);
   border: 1px solid var(--uf-border);
   padding: 0.75rem 1rem;
-  background-color: var(--uf-bg);
+  background-color: var(--uf-surface);
   color: var(--uf-text-main);
   transition: var(--uf-transition);
 }
