@@ -1,8 +1,69 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Quienes somos";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="uf-hero">
+    <span class="uf-hero-badge">Urbanfix El Salvador</span>
+    <h1>Un espacio para que la comunidad sea escuchada</h1>
+    <p class="uf-hero-lead">
+        Urbanfix es una plataforma de concientizacion ciudadana que visibiliza problemas de
+        infraestructura y servicios publicos para impulsar respuestas de autoridades,
+        instituciones gubernamentales y organizaciones aliadas.
+    </p>
+    <div class="uf-hero-actions">
+        <a class="btn btn-light btn-lg" asp-controller="Reportar" asp-action="Index">Reportar un problema</a>
+        <a class="btn btn-outline-light btn-lg" asp-controller="Mapa" asp-action="Index">Ver mapa de reportes</a>
+    </div>
+</section>
+
+<section class="uf-section">
+    <h2 class="uf-section-title">Nuestra finalidad</h2>
+    <p class="uf-section-text">
+        Queremos hacer un llamado de concientizacion a las autoridades sobre situaciones que
+        afectan la calidad de vida de la poblacion salvadorena. A traves de reportes
+        georreferenciados, las comunidades pueden documentar problematicas en calles, pozos,
+        hidrantes, acumulacion de basura, fallas electricas y otros riesgos urbanos que
+        requieren atencion oportuna.
+    </p>
+    <p class="uf-section-text mt-3">
+        Urbanfix no solo registra incidentes: crea un espacio publico donde la ciudadania
+        puede anunciar problemas, generar evidencia y apelar a que instituciones
+        especializadas del gobierno u ONGs se sumen para apoyar a las comunidades.
+    </p>
+</section>
+
+<section class="uf-section">
+    <h2 class="uf-section-title">Que puedes reportar</h2>
+    <div class="uf-card-grid">
+        <article class="uf-card">
+            <div class="uf-card-icon">&#128739;</div>
+            <h3>Vias y calles</h3>
+            <p>Baches, grietas, falta de senalizacion y condiciones que dificultan la movilidad.</p>
+        </article>
+        <article class="uf-card">
+            <div class="uf-card-icon">&#128167;</div>
+            <h3>Agua y drenaje</h3>
+            <p>Pozos, tapas rotas, hidrantes danados y riesgos de inundacion en tu colonia.</p>
+        </article>
+        <article class="uf-card">
+            <div class="uf-card-icon">&#9889;</div>
+            <h3>Servicios electricos</h3>
+            <p>Postes danados, cables expuestos y fallas que representen peligro para vecinos.</p>
+        </article>
+        <article class="uf-card">
+            <div class="uf-card-icon">&#9851;</div>
+            <h3>Basura y entorno</h3>
+            <p>Acumulacion de desechos, areas insalubres y problemas que afectan el entorno urbano.</p>
+        </article>
+    </div>
+</section>
+
+<section class="uf-section uf-highlight">
+    <h2 class="uf-section-title">Como funciona</h2>
+    <p>
+        Registrate, ubica el problema en el mapa, adjunta una descripcion y, si es posible,
+        una fotografia. Tu reporte queda disponible para consulta publica y contribuye a
+        visibilizar necesidades reales de la poblacion. Juntos podemos impulsar soluciones
+        mas rapidas, transparentes y cercanas a quienes viven estos problemas cada dia.
+    </p>
+</section>
