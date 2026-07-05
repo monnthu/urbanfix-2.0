@@ -11,7 +11,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm uf-navbar mb-0">
+        <nav class="navbar navbar-expand-sm navbar-light uf-navbar">
             <div class="container-fluid uf-container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Urbanfix</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -19,7 +19,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 justify-content-center">
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : string.Empty)"
                                asp-area="" asp-controller="Home" asp-action="Index">Quienes somos</a>
@@ -40,7 +40,7 @@
                             </li>
                         }
                     </ul>
-                    <ul class="navbar-nav align-items-sm-center">
+                    <ul class="navbar-nav align-items-center">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
