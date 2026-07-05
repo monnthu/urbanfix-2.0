@@ -64,12 +64,13 @@ namespace Urbanfix.Controllers
                 }
                 else
                 {
-                    return Json(new { reply = "Hubo un error al comunicarse con la IA. Intenta de nuevo más tarde." });
+                    var errorDetail = await response.Content.ReadAsStringAsync();
+                    return Json(new { reply = $"Hubo un error al comunicarse con la IA. Código: {response.StatusCode}. Detalle de OpenAI: {errorDetail}" });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Json(new { reply = "Error interno del servidor al procesar la IA." });
+                return Json(new { reply = $"Error interno del servidor al procesar la IA: {ex.Message}" });
             }
         }
     }
