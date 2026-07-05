@@ -25,6 +25,10 @@
                                asp-area="" asp-controller="Home" asp-action="Index">Quienes somos</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Asistente" ? "active" : string.Empty)"
+                               asp-area="" asp-controller="Asistente" asp-action="Index">Asistente</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reportar" ? "active" : string.Empty)"
                                asp-area="" asp-controller="Reportar" asp-action="Index">Reportar daños</a>
                         </li>

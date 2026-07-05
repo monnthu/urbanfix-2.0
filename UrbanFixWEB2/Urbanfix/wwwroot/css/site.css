@@ -172,6 +172,11 @@ a:hover {
 .uf-section {
   padding: 5rem 0;
 }
+.uf-section-alt {
+  background-color: var(--uf-surface);
+  border-top: 1px solid var(--uf-border);
+  border-bottom: 1px solid var(--uf-border);
+}
 .uf-section-title {
   font-size: clamp(2rem, 3vw, 2.5rem);
   margin-bottom: 1rem;
@@ -240,16 +245,18 @@ a:hover {
 /* Footer */
 .uf-footer {
   padding: 3rem 0;
-  border-top: 1px solid var(--uf-border);
-  background-color: var(--uf-bg);
-  color: var(--uf-text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--uf-navbar-bg);
+  color: var(--uf-navbar-text);
   font-size: 0.875rem;
 }
 .uf-footer a {
-  color: var(--uf-text-muted);
+  color: var(--uf-navbar-text);
+  opacity: 0.85;
 }
 .uf-footer a:hover {
-  color: var(--uf-text-main);
+  color: var(--uf-navbar-text);
+  opacity: 1;
 }
 
 /* Forms & Panels (for other views) */

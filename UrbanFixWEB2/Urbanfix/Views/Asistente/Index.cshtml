@@ -1,0 +1,101 @@
+@{
+    ViewData["Title"] = "Asistente Virtual";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="uf-surface d-flex flex-column" style="height: 70vh; padding: 0; overflow: hidden;">
+            <div class="p-4 border-bottom" style="border-color: var(--uf-border); background-color: var(--uf-surface);">
+                <h1 class="h4 mb-0" style="color: var(--uf-text-main);">Asistente Urbanfix</h1>
+                <p class="text-muted small mb-0">Resuelve tus dudas sobre la plataforma y autoridades</p>
+            </div>
+            
+            <div id="chat-messages" class="flex-grow-1 p-4 overflow-auto" style="background-color: var(--uf-bg);">
+                <!-- Messages will appear here -->
+                <div class="d-flex mb-3">
+                    <div class="p-3 rounded" style="background-color: var(--uf-surface); border: 1px solid var(--uf-border); max-width: 80%;">
+                        ¡Hola! Soy el asistente virtual de Urbanfix. ¿En qué te puedo ayudar hoy? Puedes preguntarme sobre nuestra finalidad, cómo usar la web o contactos de autoridades.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-3 border-top" style="border-color: var(--uf-border); background-color: var(--uf-surface);">
+                <form id="chat-form" class="d-flex gap-2">
+                    <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu mensaje aquí..." autocomplete="off" required />
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        function addMessage(text, isUser) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `d-flex mb-3 ${isUser ? 'justify-content-end' : ''}`;
+            
+            const innerDiv = document.createElement('div');
+            innerDiv.className = 'p-3 rounded';
+            innerDiv.style.maxWidth = '80%';
+            
+            if (isUser) {
+                innerDiv.style.backgroundColor = 'var(--uf-accent)';
+                innerDiv.style.color = '#FFFFFF';
+            } else {
+                innerDiv.style.backgroundColor = 'var(--uf-surface)';
+                innerDiv.style.border = '1px solid var(--uf-border)';
+                innerDiv.style.color = 'var(--uf-text-main)';
+            }
+            
+            innerDiv.textContent = text;
+            msgDiv.appendChild(innerDiv);
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function getBotResponse(input) {
+            const lowerInput = input.toLowerCase();
+            
+            if (lowerInput.includes('finalidad') || lowerInput.includes('quienes somos') || lowerInput.includes('objetivo')) {
+                return "Nuestra finalidad es hacer un llamado de concientización a las autoridades sobre problemas de infraestructura en El Salvador, permitiendo a la población reportar daños para que las instituciones puedan actuar.";
+            }
+            if (lowerInput.includes('como usar') || lowerInput.includes('como reportar') || lowerInput.includes('ayuda')) {
+                return "Para usar la plataforma, primero debes 'Registrarte'. Luego, ve a la sección 'Reportar daños', llena el formulario con la descripción del problema, ubícalo en el mapa y envía el reporte. Puedes ver todos los reportes en la sección 'Mapa'.";
+            }
+            if (lowerInput.includes('autoridad') || lowerInput.includes('contacto') || lowerInput.includes('institucion')) {
+                if (lowerInput.includes('agua') || lowerInput.includes('pozo') || lowerInput.includes('inundacion')) {
+                    return "Para problemas de agua y drenaje, la autoridad principal es ANDA (Administración Nacional de Acueductos y Alcantarillados). Contacto: 915 (Call Center).";
+                }
+                if (lowerInput.includes('luz') || lowerInput.includes('electric') || lowerInput.includes('poste')) {
+                    return "Para problemas eléctricos, puedes contactar a tu distribuidora local (ej. AES El Salvador al 2506-9000 o DELSUR al 2233-5600).";
+                }
+                if (lowerInput.includes('calle') || lowerInput.includes('bache') || lowerInput.includes('via')) {
+                    return "Para problemas en vías principales, corresponde al FOVIAL. Si es en calles vecinales, corresponde a la Alcaldía de tu municipio.";
+                }
+                return "Las autoridades dependen del problema: ANDA (agua), FOVIAL/Alcaldías (calles), AES/DELSUR (electricidad). ¿Sobre qué tipo de problema necesitas información?";
+            }
+            
+            return "No estoy seguro de entender. Puedes preguntarme sobre nuestra finalidad, cómo usar la plataforma, o pedir contactos de autoridades (agua, calles, electricidad).";
+        }
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+            
+            addMessage(text, true);
+            chatInput.value = '';
+            
+            // Simulate delay
+            setTimeout(() => {
+                const response = getBotResponse(text);
+                addMessage(response, false);
+            }, 600);
+        });
+    </script>
+}
