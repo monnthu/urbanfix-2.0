@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: urbanfix-web
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ApiSettings__BaseUrl
+        sync: false
+      - key: ApiSettings__SupabaseUrl
+        sync: false
+      - key: ApiSettings__SupabaseAnonKey
+        sync: false

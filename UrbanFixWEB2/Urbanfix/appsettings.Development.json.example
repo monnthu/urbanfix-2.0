@@ -1,0 +1,14 @@
+{
+  "ApiSettings": {
+    "BaseUrl": "https://localhost:7274",
+    "ReportsEndpoint": "api/Reports",
+    "SupabaseUrl": "https://YOUR_PROJECT.supabase.co",
+    "SupabaseAnonKey": "YOUR_ANON_KEY"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}

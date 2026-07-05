@@ -1,0 +1,233 @@
+@{
+    ViewData["Title"] = "Mapa";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .report-popup {
+            max-width: 220px;
+        }
+
+        .report-popup-desc {
+            font-size: 0.875rem;
+        }
+
+        .report-popup-thumb-wrap {
+            margin-top: 0.5rem;
+        }
+
+        .report-popup-thumb {
+            display: block;
+            width: 100%;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .map-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.25rem;
+            margin-top: 0.75rem;
+        }
+
+        .map-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.875rem;
+            color: #495057;
+        }
+
+        .map-legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+}
+
+<div class="mb-3">
+    <h1 class="display-6">Mapa de reportes</h1>
+    <p class="text-muted">Marcadores cargados desde la API UrbanFix (V2).</p>
+</div>
+
+<div id="map"></div>
+<div id="map-legend" class="map-legend"></div>
+<div id="map-status" class="mt-2 text-muted small"></div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script>
+        (function () {
+            const defaultLat = @ViewBag.DefaultLat;
+            const defaultLng = @ViewBag.DefaultLng;
+            const defaultZoom = @ViewBag.DefaultZoom;
+            const statusEl = document.getElementById('map-status');
+            const legendEl = document.getElementById('map-legend');
+
+            const categoryStyles = {
+                0: { color: '#2196F3', label: 'Inundacion' },
+                1: { color: '#FF5722', label: 'Bache' },
+                2: { color: '#FFC107', label: 'Alumbrado publico' },
+                3: { color: '#4CAF50', label: 'Basura' },
+                4: { color: '#9C27B0', label: 'Graffiti' },
+                5: { color: '#607D8B', label: 'Otro' }
+            };
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function getCategoryStyle(category) {
+                if (category !== undefined && category !== null && categoryStyles[category]) {
+                    return categoryStyles[category];
+                }
+
+                return { color: '#6c757d', label: 'Otro' };
+            }
+
+            function createCategoryMarker(reporte) {
+                const style = getCategoryStyle(reporte.category);
+
+                return L.circleMarker([reporte.latitude, reporte.longitude], {
+                    radius: 10,
+                    fillColor: style.color,
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.95
+                });
+            }
+
+            function renderLegend() {
+                legendEl.innerHTML = Object.keys(categoryStyles).map(function (key) {
+                    const style = categoryStyles[key];
+                    return '<span class="map-legend-item">' +
+                        '<span class="map-legend-dot" style="background-color:' + style.color + ';"></span>' +
+                        '<span>' + escapeHtml(style.label) + '</span>' +
+                        '</span>';
+                }).join('');
+            }
+
+            renderLegend();
+
+            const map = L.map('map').setView([defaultLat, defaultLng], defaultZoom);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            fetch('/api/reports')
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Error al cargar los reportes.');
+                    }
+                    return response.json();
+                })
+                .then(function (reportes) {
+                    if (!reportes.length) {
+                        statusEl.textContent = 'No hay reportes registrados.';
+                        return;
+                    }
+
+                    const bounds = [];
+
+                    reportes.forEach(function (reporte) {
+                        const marker = createCategoryMarker(reporte).addTo(map);
+                        marker.bindPopup(buildPopupHtml(reporte), { maxWidth: 240 });
+                        bounds.push([reporte.latitude, reporte.longitude]);
+                    });
+
+                    if (bounds.length === 1) {
+                        map.setView(bounds[0], defaultZoom);
+                    } else {
+                        map.fitBounds(bounds, { padding: [40, 40] });
+                    }
+
+                    statusEl.textContent = reportes.length + ' reporte(s) cargado(s).';
+                })
+                .catch(function (error) {
+                    statusEl.textContent = error.message;
+                });
+
+            function getFirstImageUrl(reporte) {
+                if (!reporte.images || !reporte.images.length) {
+                    return null;
+                }
+
+                const images = reporte.images.slice().sort(function (a, b) {
+                    return (a.sortOrder || 0) - (b.sortOrder || 0);
+                });
+
+                for (let i = 0; i < images.length; i++) {
+                    if (images[i].url) {
+                        return images[i].url;
+                    }
+                }
+
+                return null;
+            }
+
+            function buildPopupHtml(reporte) {
+                let html = '<div class="report-popup">';
+                html += '<strong>' + escapeHtml(reporte.title) + '</strong>';
+
+                if (reporte.description) {
+                    html += '<br><span class="report-popup-desc">' + escapeHtml(reporte.description) + '</span>';
+                }
+
+                if (reporte.categoryLabel) {
+                    html += '<br><small>Categoria: ' + escapeHtml(reporte.categoryLabel) + '</small>';
+                } else if (reporte.category !== undefined && reporte.category !== null) {
+                    html += '<br><small>Categoria: ' + escapeHtml(String(reporte.category)) + '</small>';
+                }
+
+                if (reporte.priorityLabel) {
+                    html += '<br><small>Prioridad: ' + escapeHtml(reporte.priorityLabel) + '</small>';
+                } else if (reporte.priority !== undefined && reporte.priority !== null) {
+                    html += '<br><small>Prioridad: ' + escapeHtml(String(reporte.priority)) + '</small>';
+                }
+
+                const imageUrl = getFirstImageUrl(reporte);
+                if (imageUrl) {
+                    const safeUrl = escapeHtml(imageUrl);
+                    html += '<div class="report-popup-thumb-wrap">';
+                    html += '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer">';
+                    html += '<img class="report-popup-thumb" src="' + safeUrl + '" alt="Foto del reporte" loading="lazy">';
+                    html += '</a></div>';
+                }
+
+                if (reporte.statusLabel) {
+                    html += '<br><small>Estado: ' + escapeHtml(reporte.statusLabel) + '</small>';
+                } else if (reporte.status !== undefined && reporte.status !== null) {
+                    html += '<br><small>Estado: ' + escapeHtml(String(reporte.status)) + '</small>';
+                }
+
+                html += '</div>';
+                return html;
+            }
+        })();
+    </script>
+}

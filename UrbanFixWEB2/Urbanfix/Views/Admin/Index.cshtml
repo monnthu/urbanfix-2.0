@@ -1,0 +1,80 @@
+@model IReadOnlyList<Urbanfix.Models.AdminReportStatusViewModel>
+@using Urbanfix.Models
+@{
+    ViewData["Title"] = "Administracion de reportes";
+    var statuses = Enum.GetValues<ReportStatus>();
+}
+
+<div class="mb-4">
+    <h1 class="display-6">Administracion de reportes</h1>
+    <p class="text-muted">Como administrador puedes cambiar el estado o eliminar reportes emitidos.</p>
+</div>
+
+@if (TempData["Success"] is string successMessage)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay reportes para administrar.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Fecha</th>
+                    <th>Estado actual</th>
+                    <th>Cambiar a</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var report in Model)
+                {
+                    <tr>
+                        <td>@report.Title</td>
+                        <td>@report.CreatedAt.ToLocalTime().ToString("g")</td>
+                        <td>@report.StatusLabel</td>
+                        <td>
+                            <form asp-action="UpdateStatus" method="post" class="d-flex gap-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="reportId" value="@report.ReportId" />
+                                <select name="status" class="form-select form-select-sm">
+                                    @foreach (var status in statuses)
+                                    {
+                                        if (status == report.Status)
+                                        {
+                                            <option value="@((int)status)" selected="selected">@status.GetDisplayName()</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)status)">@status.GetDisplayName()</option>
+                                        }
+                                    }
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form asp-action="Delete" method="post"
+                                  onsubmit="return confirm('¿Eliminar este reporte de forma permanente?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="reportId" value="@report.ReportId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
