@@ -1,0 +1,70 @@
+@model Urbanfix.Models.InstitutionDashboardViewModel
+@using Urbanfix.Models
+@{
+    ViewData["Title"] = "Panel institucional";
+}
+
+<div class="mb-4">
+    <h1 class="display-6">Panel institucional</h1>
+    <p class="text-muted">
+        Reportes asignados por zona de servicio y categorias cubiertas.
+    </p>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="text-muted small">Institucion</div>
+                <strong>@Model.Institution.InstitutionName</strong>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Zona</div>
+                <strong>@Model.ServiceZoneName</strong>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Categorias</div>
+                <strong>@string.Join(", ", Model.Institution.CoverageCategories.Select(c => c.GetDisplayName()))</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div class="alert alert-danger">@Model.Error</div>
+}
+else if (!Model.AssignedReports.Any())
+{
+    <div class="alert alert-info">
+        No hay reportes asignados para esta zona y cobertura.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Categoria</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var report in Model.AssignedReports)
+                {
+                    <tr>
+                        <td>@report.Title</td>
+                        <td>@report.CategoryLabel</td>
+                        <td>@report.PriorityLabel</td>
+                        <td>@report.StatusLabel</td>
+                        <td>@report.CreatedAt.ToLocalTime().ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

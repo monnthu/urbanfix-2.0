@@ -1,13 +1,13 @@
-@model IReadOnlyList<Urbanfix.Models.AdminReportStatusViewModel>
+@model Urbanfix.Models.AdminDashboardViewModel
 @using Urbanfix.Models
 @{
-    ViewData["Title"] = "Administracion de reportes";
+    ViewData["Title"] = "Administracion";
     var statuses = Enum.GetValues<ReportStatus>();
 }
 
 <div class="mb-4">
-    <h1 class="display-6">Administracion de reportes</h1>
-    <p class="text-muted">Como administrador puedes cambiar el estado o eliminar reportes emitidos.</p>
+    <h1 class="display-6">Administracion</h1>
+    <p class="text-muted">Aprueba instituciones y administra reportes emitidos.</p>
 </div>
 
 @if (TempData["Success"] is string successMessage)
@@ -20,7 +20,76 @@
     <div class="alert alert-danger">@errorMessage</div>
 }
 
-@if (!Model.Any())
+<section class="mb-5">
+    <h2 class="h4 mb-3">Solicitudes institucionales</h2>
+
+    @if (!Model.Institutions.Any())
+    {
+        <div class="alert alert-info">No hay solicitudes institucionales.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Institucion</th>
+                        <th>Correo oficial</th>
+                        <th>Zona</th>
+                        <th>Cobertura</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var institution in Model.Institutions)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@institution.InstitutionName</strong>
+                                <div class="small text-muted">@institution.CreatedAt.ToLocalTime().ToString("g")</div>
+                            </td>
+                            <td>
+                                @institution.OfficialEmail
+                                <div class="small text-muted">@institution.OfficialDomain</div>
+                            </td>
+                            <td>@institution.ServiceZoneName</td>
+                            <td>@institution.CoverageSummary</td>
+                            <td>@institution.StatusLabel</td>
+                            <td>
+                                @if (institution.Status == InstitutionStatus.Pending)
+                                {
+                                    <div class="d-flex gap-2">
+                                        <form asp-action="ApproveInstitution" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="institutionId" value="@institution.Id" />
+                                            <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                                        </form>
+                                        <form asp-action="RejectInstitution" method="post"
+                                              onsubmit="return confirm('¿Rechazar esta institucion?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="institutionId" value="@institution.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Rechazar</button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Sin acciones</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section>
+    <h2 class="h4 mb-3">Reportes</h2>
+
+@if (!Model.Reports.Any())
 {
     <div class="alert alert-info">No hay reportes para administrar.</div>
 }
@@ -38,7 +107,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var report in Model)
+                @foreach (var report in Model.Reports)
                 {
                     <tr>
                         <td>@report.Title</td>
@@ -78,3 +147,4 @@ else
         </table>
     </div>
 }
+</section>

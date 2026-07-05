@@ -9,24 +9,32 @@ namespace Urbanfix.Controllers;
 public class AdminController : Controller
 {
     private readonly ReportApiService _reportApiService;
+    private readonly InstitutionDirectoryService _institutionDirectoryService;
 
-    public AdminController(ReportApiService reportApiService)
+    public AdminController(
+        ReportApiService reportApiService,
+        InstitutionDirectoryService institutionDirectoryService)
     {
         _reportApiService = reportApiService;
+        _institutionDirectoryService = institutionDirectoryService;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var (success, data, error) = await _reportApiService.ObtenerReportesAsync(cancellationToken);
+        var model = new AdminDashboardViewModel
+        {
+            Institutions = BuildInstitutionApprovalModels()
+        };
 
         if (!success || data is null)
         {
             TempData["Error"] = error ?? "No se pudieron cargar los reportes.";
-            return View(new List<AdminReportStatusViewModel>());
+            return View(model);
         }
 
-        var model = data
+        model.Reports = data
             .OrderByDescending(r => r.CreatedAt)
             .Select(r => new AdminReportStatusViewModel
             {
@@ -67,6 +75,38 @@ public class AdminController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public IActionResult ApproveInstitution(Guid institutionId)
+    {
+        if (!_institutionDirectoryService.Approve(institutionId))
+        {
+            TempData["Error"] = "No se encontro la solicitud institucional.";
+        }
+        else
+        {
+            TempData["Success"] = "Institucion verificada correctamente.";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult RejectInstitution(Guid institutionId)
+    {
+        if (!_institutionDirectoryService.Reject(institutionId, "Solicitud rechazada por administracion."))
+        {
+            TempData["Error"] = "No se encontro la solicitud institucional.";
+        }
+        else
+        {
+            TempData["Success"] = "Solicitud institucional rechazada.";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid reportId, CancellationToken cancellationToken)
     {
         var (success, error) = await _reportApiService.EliminarReporteAsync(reportId, cancellationToken);
@@ -81,5 +121,30 @@ public class AdminController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private IReadOnlyList<AdminInstitutionApprovalViewModel> BuildInstitutionApprovalModels()
+    {
+        return _institutionDirectoryService.GetApplications()
+            .Select(application =>
+            {
+                var zone = _institutionDirectoryService.GetZone(application.ServiceZoneCode);
+
+                return new AdminInstitutionApprovalViewModel
+                {
+                    Id = application.Id,
+                    InstitutionName = application.InstitutionName,
+                    OfficialEmail = application.OfficialEmail,
+                    OfficialDomain = application.OfficialDomain,
+                    ServiceZoneName = zone?.Name ?? application.ServiceZoneCode,
+                    CoverageSummary = string.Join(
+                        ", ",
+                        application.CoverageCategories.Select(category => category.GetDisplayName())),
+                    Status = application.Status,
+                    StatusLabel = application.Status.GetDisplayName(),
+                    CreatedAt = application.CreatedAt
+                };
+            })
+            .ToList();
     }
 }

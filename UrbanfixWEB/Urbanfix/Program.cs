@@ -20,6 +20,8 @@ if (!string.IsNullOrWhiteSpace(connectionString)
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<ReportApiService>();
 builder.Services.AddHttpClient<SupabaseAuthService>();
+builder.Services.AddSingleton<InstitutionDirectoryService>();
+builder.Services.AddScoped<InstitutionRoutingService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -33,6 +35,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole(ProfileRoles.Admin));
+    options.AddPolicy("InstitutionOnly", policy => policy.RequireRole(ProfileRoles.Institution));
 });
 
 builder.Services.AddControllersWithViews();
