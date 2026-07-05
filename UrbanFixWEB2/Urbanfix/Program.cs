@@ -32,6 +32,7 @@ if (!string.IsNullOrWhiteSpace(connectionString)
 }
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 builder.Services.AddTransient<NgrokBypassHandler>();
 
 if (builder.Environment.IsDevelopment())
